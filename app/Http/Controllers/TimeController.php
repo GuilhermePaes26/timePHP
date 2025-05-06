@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Time;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TimeController extends Controller
 {
@@ -16,8 +17,14 @@ class TimeController extends Controller
         $validated = $request->validate([
             'nome' => 'required|string',
             'titulos' => 'required|integer',
-            'imagem' => 'nullable|string',
+            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+
+        // Salva a imagem e guarda o caminho, se houver
+        if ($request->hasFile('imagem')) {
+            $path = $request->file('imagem')->store('public/imagens');
+            $validated['imagem'] = Storage::url($path); // Gera a URL acessível
+        }
 
         return Time::create($validated);
     }
@@ -30,7 +37,13 @@ class TimeController extends Controller
     public function update(Request $request, $id)
     {
         $time = Time::findOrFail($id);
-        $time->update($request->all());
+
+        if ($request->hasFile('imagem')) {
+            $path = $request->file('imagem')->store('public/imagens');
+            $request->merge(['imagem' => Storage::url($path)]);
+        }
+
+        $time->update($request->only(['nome', 'titulos', 'imagem']));
         return $time;
     }
 

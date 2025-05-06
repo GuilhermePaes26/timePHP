@@ -3,10 +3,17 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeController;
 use App\Http\Controllers\JogadorController;
+use App\Http\Controllers\CadastroController;
+
+
+
 
 Route::get('/bateu', function () {
     return response()->json(['message' => 'Bateu']);
 });
+
+Route::post('/cadastro', [CadastroController::class, 'store']);
+
 
 Route::get('/times', [TimeController::class, 'index']);  
 Route::post('/times', [TimeController::class, 'store']);  
